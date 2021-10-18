@@ -21,3 +21,8 @@ var PAWN_VALUE      = 1;
 var WIDTH           = 600;
 var HEIGHT          = 600;
 var PIECE_SIZE      = WIDTH/8;
+
+// Errors
+var OUT_OF_BOARD    = 0;
+var OCCUPIED_CELL   = 1;
+var EMPTY_CELL      = 2;

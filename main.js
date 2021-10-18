@@ -59,6 +59,14 @@ class GameState{
         for(var i = 0; i< this.WhitePieces.length; i++){
             this.WhitePieces[i].drawPiece();
         }
+        // TODO: Draw moves only when clicked
+        for(var i = 0; i< this.BlackPieces.length; i++){
+            this.BlackPieces[i].drawMoves();
+        }
+        // TODO: Draw moves only when clicked
+        for(var i = 0; i< this.WhitePieces.length; i++){
+            this.WhitePieces[i].drawMoves();
+        }
     }
 
 }
