@@ -7,7 +7,16 @@ var TRADITIONAL     = [ "rnbqkbnr",
                         "PPPPPPPP",
                         "RNBQKBNR"];
 
-var BOARD           = TRADITIONAL;
+var SCENARIO1       = [ "rnbqkbnr",
+                        "p pp ppp",
+                        "    p   ",
+                        " p P    ",
+                        "        ",
+                        "  NQ    ",
+                        "        ",
+                        "R B KBNR"];
+
+var BOARD           = SCENARIO1;
 
 // Pieces values
 var KING_VALUE      = 10;
@@ -26,3 +35,11 @@ var PIECE_SIZE      = WIDTH/8;
 var OUT_OF_BOARD    = 0;
 var OCCUPIED_CELL   = 1;
 var EMPTY_CELL      = 2;
+
+// Game states
+var SPLASH_SCREEN   = 0;
+var MAIN_MENU       = 1;
+var SETTINGS        = 2;
+var GAME            = 3;
+var INSTRUCTIONS    = 4;
+var CREDITS         = 5;

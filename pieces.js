@@ -1,13 +1,13 @@
 
 class Piece{
     constructor(i, j, value, white){
-        this.i      = i;
-        this.j      = j;
-        this.value  = value;
-        this.active = true;
-        this.white  = white;
-        this.moves  = [];
-
+        this.i              = i;
+        this.j              = j;
+        this.value          = value;
+        this.active         = true;
+        this.white          = white;
+        this.moves          = [];
+        this.selected   = false;
     }
 
     drawPiece(){
@@ -23,12 +23,13 @@ class Piece{
         text(this.value, -4, 4);
         fill(0);
         text("( "+this.i+", "+this.j+" )", -33, 31);
+        text(this.name, -PIECE_SIZE/2+2, -PIECE_SIZE/2+12);
         pop();
     }
 
     drawMoves(){
         for(var i = 0; i < this.moves.length; i++){
-            if(this.moves.length>0){
+            if(this.moves.length > 0){
                 noStroke();
                 fill(0,0,200);
                 if(opponent(this.moves[i][0], this.moves[i][1], this.white)){
@@ -39,11 +40,16 @@ class Piece{
             }
         }
     }
+
+    toggleSelection(){
+        this.selected = !this.selected;
+    }
 }
 
 class King extends Piece{
     constructor(i, j, white){
         super(i, j, KING_VALUE, white);
+        this.name = "King";
         this.allowed_moves();
     }
 
@@ -60,6 +66,7 @@ class King extends Piece{
 class Queen extends Piece{
     constructor(i, j, white){
         super(i, j, QUEEN_VALUE, white);
+        this.name = "Queen";
         this.allowed_moves();
     }
 
@@ -94,6 +101,7 @@ class Queen extends Piece{
 class Bishop extends Piece{
     constructor(i, j, white){
         super(i, j, BISHOP_VALUE, white);
+        this.name = "Bishop";
         this.allowed_moves();
     }
 
@@ -116,6 +124,7 @@ class Bishop extends Piece{
 class Knight extends Piece{
     constructor(i, j, white){
         super(i, j, KNIGHT_VALUE, white);
+        this.name = "Knight";
         this.allowed_moves();
     }
 
@@ -135,6 +144,7 @@ class Knight extends Piece{
 class Rook extends Piece{
     constructor(i, j, white){
         super(i, j, ROOK_VALUE, white);
+        this.name = "Rook";
         this.allowed_moves();
     }
 
@@ -157,6 +167,7 @@ class Rook extends Piece{
 class Pawn extends Piece{
     constructor(i, j, white){
         super(i, j, PAWN_VALUE, white);
+        this.name = "Pawn";
         this.allowed_moves();
     }
     allowed_moves(){
@@ -188,6 +199,33 @@ function opponent(i, j, white){
     if(BOARD[j][i] != " "){
         if(white && BOARD[j][i].charCodeAt(0)>=97) return true;
         if(!white && BOARD[j][i].charCodeAt(0)<=90) return true;
+    }
+    return false;
+}
+
+function get_index_by_ij(i, j, pieces){
+    // Return the array index corresponding to piece (i,j) on the board
+    for(var n = 0; n< pieces.length; n++){
+        if(pieces[n].i == i && pieces[n].j == j) return n;
+    }
+    return -1;
+}
+
+function any_piece_selected(pieces){
+    // Returns true if any piece is currently selected
+    for(var n = 0; n< pieces.length; n++){
+        if(pieces[n].selected)
+            return true;
+    }
+    return false;
+}
+
+function validate_move(i, j, piece){
+    // verifies if a move is in the list of allowed moves
+    for(var n = 0; n < piece.moves.length; n++){
+        if(piece.moves[n][0] == i && piece.moves[n][1] == j){
+            return true;
+        }
     }
     return false;
 }
