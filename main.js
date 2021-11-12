@@ -1,39 +1,53 @@
+/*
+Walter Newsome ECE @ VT
+wnewsome.com
+*/
+
 class GameState{
     constructor(){
+        // Main game components
         this.WhitePieces = [];
         this.BlackPieces = [];
         this.loadPieces();
         this.selectedIndex = -1;
         this.state = SPLASH_SCREEN;
+        this.turn = WHITES_TURN;
+
+        // Game settings
+        this.color = 0;
+        this.boardColor1 = color(250, 198, 155);
+        this.boardColor2 = color(181, 117, 62);
+        this.level = 1;
     }
 
     loadPieces(){
+        // Load the pieces from the BOARD
         for (var i = 0; i< BOARD.length; i++) {
             for (var j =0; j < BOARD[i].length; j++) {
                 switch (BOARD[i][j]) {
-                    case 'r': this.BlackPieces.push(new Rook    (j, i, false));
+                    case 'r': this.BlackPieces.push(new Rook    (j, i, false, 'r', 0));
                         break;
-                    case 'n': this.BlackPieces.push(new Knight  (j, i, false));
+                    case 'n': this.BlackPieces.push(new Knight  (j, i, false, 'n', 1));
                         break;
-                    case 'b': this.BlackPieces.push(new Bishop  (j, i, false));
+                    case 'b': this.BlackPieces.push(new Bishop  (j, i, false, 'b', 2));
                         break;
-                    case 'q': this.BlackPieces.push(new Queen   (j, i, false));
+                    case 'q': this.BlackPieces.push(new Queen   (j, i, false, 'q', 3));
                         break;
-                    case 'k': this.BlackPieces.push(new King    (j, i, false));
+                    case 'k': this.BlackPieces.push(new King    (j, i, false, 'k', 4));
                         break;
-                    case 'p': this.BlackPieces.push(new Pawn    (j, i, false));
+                    case 'p': this.BlackPieces.push(new Pawn    (j, i, false, 'p', 5));
                         break;
-                    case 'R': this.WhitePieces.push(new Rook    (j, i, true));
+                    case 'R': this.WhitePieces.push(new Rook    (j, i, true, 'R', 6));
                         break;
-                    case 'N': this.WhitePieces.push(new Knight  (j, i, true));
+                    case 'N': this.WhitePieces.push(new Knight  (j, i, true, 'N', 7));
                         break;
-                    case 'B': this.WhitePieces.push(new Bishop  (j, i, true));
+                    case 'B': this.WhitePieces.push(new Bishop  (j, i, true, 'B', 8));
                         break;
-                    case 'Q': this.WhitePieces.push(new Queen   (j, i, true));
+                    case 'Q': this.WhitePieces.push(new Queen   (j, i, true, 'Q', 9));
                         break;
-                    case 'K': this.WhitePieces.push(new King    (j, i, true));
+                    case 'K': this.WhitePieces.push(new King    (j, i, true, 'K', 10));
                         break;
-                    case 'P': this.WhitePieces.push(new Pawn    (j, i, true));
+                    case 'P': this.WhitePieces.push(new Pawn    (j, i, true, 'P', 11));
                         break;
                 }
             }
@@ -46,8 +60,8 @@ class GameState{
             for (var j =0; j < BOARD[i].length; j++) {
                 push();
                 stroke(0);
-                fill(250, 198, 155);
-                if((i+j)%2 == 1) fill(181, 117, 62);
+                fill(Game.boardColor1);
+                if((i+j)%2 == 1) fill(Game.boardColor2);
                 translate(i*PIECE_SIZE, j*PIECE_SIZE);
                 square(0,0, PIECE_SIZE);
                 pop();
@@ -61,19 +75,20 @@ class GameState{
         for(var i = 0; i< this.WhitePieces.length; i++){
             this.WhitePieces[i].drawPiece();
         }
-        /*
-        // TODO: Draw moves only when clicked
-        for(var i = 0; i< this.BlackPieces.length; i++){
-            this.BlackPieces[i].drawMoves();
-        }
-        // TODO: Draw moves only when clicked
-        */
+
+        // Draw moves if clicked
         for(var i = 0; i< this.WhitePieces.length; i++){
             if(this.WhitePieces[i].selected)
                 this.WhitePieces[i].drawMoves();
         }
+
+        // Compute opponent's move
+        if(this.turn == BLACKS_TURN)
+            opponents_turn();
     }
+
     selectPiece(i, j){
+        // Called after click, identifies if a white piece was selected
         var index = get_index_by_ij(i, j, this.WhitePieces);
         // Clear all other selections TODO: limit this process to only this.selectedIndex?
         for(var n = 0; n< this.WhitePieces.length; n++){
@@ -91,29 +106,43 @@ class GameState{
         }
     }
 }
-var img;
-var knightImg;
-var Game;
 
 function setup(){
     createCanvas(WIDTH, HEIGHT);
-    background(200);
+    background(0);
+
+    // Setup the board to be an array
+    for (var i = 0; i < 8; i++) {
+        BOARD[i] = new Array(8);
+        // Load existing game
+        for (var j = 0; j < 8; j++) {
+            BOARD[i][j] = BOARD1[i][j];
+        }
+    }
+
     Game = new GameState();
-    img = loadImage("logo.PNG");
-    knightImg = loadImage("knight.PNG");
+    img = loadImage("assets/logo.PNG");
+    knightImg = loadImage("assets/knight.PNG");
+    for(var i = 0; i < 12; i++)
+        pieceImage.push(loadImage("assets/"+i+".png"));
+    for(var i = 0; i < 4; i++)
+        instructions.push(loadImage("assets/I"+i+".png"));
 }
 
 function mouseClicked(event) {
+    // Click detected, behavior depends on state
     switch(Game.state){
         case SPLASH_SCREEN:
             break;
         case MAIN_MENU:
+            // Selects from different options
             if( event.offsetX>= 200 && event.offsetX<=410 &&
                 event.offsetY>= 275 && event.offsetY<=300){
                     Game.state = GAME;
                 }
             if( event.offsetX>= 200 && event.offsetX<=345 &&
                 event.offsetY>= 320 && event.offsetY<=340){
+                    currFrameInt = frameCount;
                     Game.state = INSTRUCTIONS;
                 }
             if( event.offsetX>= 200 && event.offsetX<=295 &&
@@ -124,37 +153,76 @@ function mouseClicked(event) {
                 event.offsetY>= 400 && event.offsetY<=420){
                     Game.state = CREDITS;
                 }
-            print(event.offsetX + " " + event.offsetY);
+            if(inDebugMode)
+                print(event.offsetX + " " + event.offsetY);
             break
         case SETTINGS:
+            // Identifies which options did the user selected
+            if( event.offsetX>= 268 && event.offsetX<=342 &&
+                event.offsetY>= 499 && event.offsetY<=520){
+                    Game.state = MAIN_MENU;
+                }
+            if( event.offsetX>= 280 && event.offsetX<=330 &&
+                event.offsetY>= 310 && event.offsetY<=360){
+                    Game.color = 0;
+                    Game.boardColor1 = color(250, 198, 155);
+                    Game.boardColor2 = color(181, 117, 62);
+                }
+            if( event.offsetX>= 340 && event.offsetX<=390 &&
+                event.offsetY>= 310 && event.offsetY<=360){
+                    Game.color = 1;
+                    Game.boardColor1 = color(57, 75, 212);
+                    Game.boardColor2 = color(142, 154, 245);
+                }
+            if( event.offsetX>= 400 && event.offsetX<=450 &&
+                event.offsetY>= 310 && event.offsetY<=360){
+                    Game.color = 2;
+                    Game.boardColor1 = color(120);
+                    Game.boardColor2 = color(255);
+                }
+            if( event.offsetX>= 280 && event.offsetX<=330 &&
+                event.offsetY>= 400 && event.offsetY<=450){
+                    Game.level = 1;
+                }
+            if( event.offsetX>= 340 && event.offsetX<=390 &&
+                event.offsetY>= 400 && event.offsetY<=450){
+                    Game.level = 2;
+                }
+            if( event.offsetX>= 400 && event.offsetX<=450 &&
+                event.offsetY>= 400 && event.offsetY<=450){
+                    Game.level = 3;
+                }
+            break;
+        case INSTRUCTIONS:
+            // Going back to main menu
+            if( event.offsetX>= 270 && event.offsetX<=327 &&
+                event.offsetY>= 554 && event.offsetY<=570){
+                    Game.state = MAIN_MENU;
+                }
+            break;
+        case CREDITS:
+            // Going back to main menu
+            if( event.offsetX>= 270 && event.offsetX<=327 &&
+                event.offsetY>= 510 && event.offsetY<=530){
+                    Game.state = MAIN_MENU;
+                }
             break;
         case GAME:
+            // Click detected during a game. Identify if a white piece was selected
             var i = floor(event.offsetX/PIECE_SIZE);
             var j = floor(event.offsetY/PIECE_SIZE);
-
-            if(any_piece_selected(Game.WhitePieces)){
-                if(validate_move(i, j, Game.WhitePieces[Game.selectedIndex])){
-                    var row = BOARD[0];
-                    row[1] = 'X';
-                    print(row)
-                    BOARD[Game.WhitePieces[Game.selectedIndex].j][Game.WhitePieces[Game.selectedIndex].i] = " ";
-                    Game.WhitePieces[Game.selectedIndex].i = i;
-                    Game.WhitePieces[Game.selectedIndex].j = j;
-
-                    // Update all allowed moves
-                    for(n = 0; n < Game.WhitePieces.length; n++ ){
-                        Game.WhitePieces[n].moves = [];
-                        Game.WhitePieces[n].allowed_moves();
-                    }
-                }
-            }
-
-            Game.selectPiece(i, j);
+            handle_piece_click(i,j);
             break;
+    }
+    if(inDebugMode){
+        // Print the main board to the console if in debugger mode
+        print(mouseX, mouseY);
+        console.table(BOARD);
     }
 }
 
 function draw(){
+    // Main loop function which acts according to its state
     switch(Game.state){
         case SPLASH_SCREEN:
             draw_splash_screen();
@@ -163,12 +231,16 @@ function draw(){
             draw_main_screen();
             break
         case SETTINGS:
+            draw_options_screen();
+            break;
         case INSTRUCTIONS:
+            draw_instructions_screen();
+            break;
         case CREDITS:
+            draw_credits_screen();
+            break;
         case GAME:
-            Game.state = GAME;
             Game.drawBoard();
             break;
     }
 }
-
