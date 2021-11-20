@@ -46,25 +46,27 @@ class Piece{
     }
 
     drawMoves(){
-        push();
-        // Obtains all valid moves of a piece and displays it to the screen
-        for(var i = 0; i < this.moves.length; i++){
-            if(this.moves.length > 0){
-                noFill();
-                stroke(0,0,200);
-                strokeWeight(2);
-                if(opponent(this.moves[i][0], this.moves[i][1], this.white)){
-                    stroke(200,0,0);
+        if(this.active){
+            push();
+            // Obtains all valid moves of a piece and displays it to the screen
+            for(var i = 0; i < this.moves.length; i++){
+                if(this.moves.length > 0){
+                    noFill();
+                    stroke(0,0,200);
+                    strokeWeight(2);
+                    if(opponent(this.moves[i][0], this.moves[i][1], this.white)){
+                        stroke(200,0,0);
+                    }
+
+                    circle( this.moves[i][0]*PIECE_SIZE+PIECE_SIZE/2,
+                            this.moves[i][1]*PIECE_SIZE+PIECE_SIZE/2, PIECE_SIZE-25);
+                    circle( this.moves[i][0]*PIECE_SIZE+PIECE_SIZE/2,
+                            this.moves[i][1]*PIECE_SIZE+PIECE_SIZE/2, PIECE_SIZE-40);
+
                 }
-
-                circle( this.moves[i][0]*PIECE_SIZE+PIECE_SIZE/2,
-                        this.moves[i][1]*PIECE_SIZE+PIECE_SIZE/2, PIECE_SIZE-25);
-                circle( this.moves[i][0]*PIECE_SIZE+PIECE_SIZE/2,
-                        this.moves[i][1]*PIECE_SIZE+PIECE_SIZE/2, PIECE_SIZE-40);
-
             }
+            pop();
         }
-        pop();
     }
 
     toggleSelection(){
@@ -83,6 +85,9 @@ class King extends Piece{
 
     allowed_moves(){
         // Compute moves: All around
+        this.moves = []
+        if(this.active)
+            BOARD[this.j][this.i] = this.char;
         for(var i = -1; i < 2; i++){
             for(var j = -1; j < 2; j++){
                 if( i != 0 || j != 0) addMove(this.i+i, this.j+j, this.moves, this.white);
@@ -101,7 +106,9 @@ class Queen extends Piece{
 
     allowed_moves(){
         // Queen can move all around multiple cells
-        BOARD[this.j][this.i] = this.char;
+        this.moves = []
+        if(this.active)
+            BOARD[this.j][this.i] = this.char;
         // West
         for(var i = 1; i < 8; i++)
             if(OCCUPIED_CELL == addMove(this.i-i, this.j, this.moves, this.white)) break;
@@ -139,7 +146,9 @@ class Bishop extends Piece{
 
     allowed_moves(){
         // This piece can move diagonally
-        BOARD[this.j][this.i] = this.char;
+        this.moves = []
+        if(this.active)
+            BOARD[this.j][this.i] = this.char;
         // SE
         for(var i = 1; i < 8; i++)
             if(OCCUPIED_CELL == addMove(this.i+i, this.j+i, this.moves, this.white)) break;
@@ -164,8 +173,10 @@ class Knight extends Piece{
     }
 
     allowed_moves(){
-        BOARD[this.j][this.i] = this.char;
+        if(this.active)
+            BOARD[this.j][this.i] = this.char;
         // compute valid L (or 7 shape) postions
+        this.moves = []
         addMove(this.i+1, this.j+2, this.moves, this.white);
         addMove(this.i+1, this.j-2, this.moves, this.white);
         addMove(this.i-1, this.j-2, this.moves, this.white);
@@ -187,7 +198,9 @@ class Rook extends Piece{
 
     allowed_moves(){
         // This piece can move multiple cells horizontally or vertically
-        BOARD[this.j][this.i] = this.char;
+        this.moves = []
+        if(this.active)
+            BOARD[this.j][this.i] = this.char;
         // West
         for(var i = 1; i < 8; i++)
             if(OCCUPIED_CELL == addMove(this.i-i, this.j, this.moves, this.white)) break;
@@ -214,17 +227,25 @@ class Pawn extends Piece{
 
     allowed_moves(){
         // Compute valid moves
-        BOARD[this.j][this.i] = this.char;
+        this.moves = []
+        if(this.active)
+            BOARD[this.j][this.i] = this.char;
         // Direction matters
         var direction = this.white? -1: 1;
+        // Ensure first move
+        this.firstMove = this.white? this.j == 6: this.j == 1;
+        if(OCCUPIED_CELL == addMove(this.i, this.j+direction, this.moves, this.white)) this.moves.pop();
+
         // Allow to move forward only at first move
-        if(this.firstMove)
+        if(this.firstMove && this.moves.length>0)
             if(OCCUPIED_CELL == addMove(this.i, this.j+direction+direction, this.moves, this.white)) this.moves.pop();
-        if(OCCUPIED_CELL == addMove(this.i, this.j+direction, this.moves, this.white)) this.moves.pop();
-        if(OCCUPIED_CELL == addMove(this.i, this.j+direction, this.moves, this.white)) this.moves.pop();
+
         // Can move diagonally forward if there's a enemy in front
-        if(OCCUPIED_CELL != addMove(this.i-1, this.j+direction, this.moves, this.white)) this.moves.pop();
-        if(OCCUPIED_CELL != addMove(this.i+1, this.j+direction, this.moves, this.white)) this.moves.pop();
+        if(this.i-direction>-1 && this.i-direction<8)
+            if(OCCUPIED_CELL != addMove(this.i-direction, this.j+direction, this.moves, this.white)) this.moves.pop();
+        if(this.i+direction>-1 && this.i+direction<8)
+            if(OCCUPIED_CELL != addMove(this.i+direction, this.j+direction, this.moves, this.white)) this.moves.pop();
+
     }
 }
 
@@ -262,8 +283,10 @@ function get_index_by_ij(i, j, pieces){
 function any_piece_selected(pieces){
     // Returns true if any piece is currently selected
     for(var n = 0; n< pieces.length; n++){
-        if(pieces[n].selected)
-            return true && pieces[n].active;
+        if(pieces[n].selected){
+            return pieces[n].active;
+        }
+
     }
     return false;
 }
@@ -279,11 +302,11 @@ function validate_move(i, j, piece){
 }
 
 function handle_piece_click(i,j){
+
     // Only allowed to click on the right turn (computer may need time to compute)
     if(Game.turn == WHITES_TURN){
         if(any_piece_selected(Game.WhitePieces)){
             if(validate_move(i, j, Game.WhitePieces[Game.selectedIndex])){
-
                 // if pawn then mark first move
                 if(Game.WhitePieces[Game.selectedIndex].name == "Pawn"){
                     Game.WhitePieces[Game.selectedIndex].firstMove = false;
@@ -294,17 +317,19 @@ function handle_piece_click(i,j){
                 Game.WhitePieces[Game.selectedIndex].i = i;
                 Game.WhitePieces[Game.selectedIndex].j = j;
 
+                if(Game.WhitePieces[Game.selectedIndex].name == "Pawn" && j == 0){
+                    // Pawn becomes queen!
+                    print("queen");
+                    Game.WhitePieces[Game.selectedIndex] = new Queen   (i, j, true, 'Q', 9);
+                }
+
                 // Check if opponent killed
                 var opponent = get_index_by_ij(i,j, Game.BlackPieces);
                 if(opponent > -1)
                     Game.BlackPieces[opponent].active = false;
 
-                // Update all allowed moves
-                for(n = 0; n < Game.WhitePieces.length; n++ ){
-                    // Has to be done on all pieces because the new position of a piece may change other piece's valid moves
-                    Game.WhitePieces[n].moves = [];
-                    Game.WhitePieces[n].allowed_moves();
-                }
+                // Update moves
+                updateAllValidMoved();
 
                 // Change turns only after a valid move
                 Game.turn = BLACKS_TURN;
@@ -313,5 +338,15 @@ function handle_piece_click(i,j){
         Game.selectPiece(i, j);
     } else {
         print("Computer's turn: still thinking!");
+    }
+}
+
+function updateAllValidMoved(){
+    // Update all allowed moves for both White and Black pieces
+    for(n = 0; n < Game.WhitePieces.length; n++ ){
+        Game.WhitePieces[n].allowed_moves();
+    }
+    for(n = 0; n < Game.BlackPieces.length; n++ ){
+        Game.BlackPieces[n].allowed_moves();
     }
 }

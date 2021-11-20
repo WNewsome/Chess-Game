@@ -10,8 +10,11 @@ class GameState{
         this.BlackPieces = [];
         this.loadPieces();
         this.selectedIndex = -1;
+        this.blackSelected = -1;
         this.state = SPLASH_SCREEN;
         this.turn = WHITES_TURN;
+        this.blackLeavingI = -1;
+        this.blackLeavingJ = -1;
 
         // Game settings
         this.color = 0;
@@ -82,14 +85,35 @@ class GameState{
                 this.WhitePieces[i].drawMoves();
         }
 
+        // Draw moves if clicked TODOREMOVE
+        for(var i = 0; i< this.BlackPieces.length; i++){
+            if(this.BlackPieces[i].selected)
+                this.BlackPieces[i].drawMovesBlacks();
+        }
+
         // Compute opponent's move
         if(this.turn == BLACKS_TURN)
             opponents_turn();
+
+        // TODOREMOVE
+        if(this.blackSelected>-1){
+            if(this.BlackPieces[this.blackSelected].active)
+                this.BlackPieces[this.blackSelected].drawMoves();
+        }
+        if(this.blackLeavingI > -1 && this.blackLeavingJ>-1){
+            push();
+            fill(120);
+            circle(this.blackLeavingI*PIECE_SIZE+PIECE_SIZE/2,
+                    this.blackLeavingJ*PIECE_SIZE+PIECE_SIZE/2, 15);
+            pop();
+        }
     }
 
     selectPiece(i, j){
+        this.blackSelected = -1; // TODOREMOVE
         // Called after click, identifies if a white piece was selected
         var index = get_index_by_ij(i, j, this.WhitePieces);
+
         // Clear all other selections TODO: limit this process to only this.selectedIndex?
         for(var n = 0; n< this.WhitePieces.length; n++){
                 if(n != index)
@@ -99,10 +123,17 @@ class GameState{
         if(index>-1){
             // Select or deselect
             this.WhitePieces[index].toggleSelection();
-            // Can only select on piece at the time
+            // Can only select one piece at the time
             this.selectedIndex = this.WhitePieces[index].selected ? index: -1;
         } else {
             this.selectedIndex = -1;
+        }
+
+        // TODOREMOVE
+        var indexBlack = get_index_by_ij(i, j, this.BlackPieces);
+        if(indexBlack>-1){
+            this.blackSelected = indexBlack;
+            this.selected = -1;
         }
     }
 }
@@ -222,6 +253,7 @@ function mouseClicked(event) {
 }
 
 function draw(){
+    // /Game.state = GAME;
     // Main loop function which acts according to its state
     switch(Game.state){
         case SPLASH_SCREEN:

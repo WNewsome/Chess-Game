@@ -18,7 +18,8 @@ function opponents_turn(){
 
             // Leave
             BOARD[Game.BlackPieces[random_piece].j][Game.BlackPieces[random_piece].i] = ' ';
-
+            Game.blackLeavingI = Game.BlackPieces[random_piece].i;
+            Game.blackLeavingJ = Game.BlackPieces[random_piece].j;
             // Arrive
             BOARD[move[1]][move[0]] = Game.BlackPieces[random_piece].char;
 
@@ -26,7 +27,15 @@ function opponents_turn(){
             Game.BlackPieces[random_piece].i = move[0];
             Game.BlackPieces[random_piece].j = move[1];
             if(Game.BlackPieces[random_piece].name == "Pawn")
-            Game.BlackPieces[random_piece].firstMove = false;
+                Game.BlackPieces[random_piece].firstMove = false;
+
+            // Check if pawn become queen
+            if(Game.BlackPieces[random_piece].name == "Pawn" && move[1] == 7){
+                // Pawn becomes queen!
+                print("queen");
+                Game.BlackPieces[random_piece] = new Queen (move[0], move[1], false, 'q', 3);
+            }
+
             if(inDebugMode)
                 console.table(BOARD);
 
@@ -35,12 +44,8 @@ function opponents_turn(){
             if(opponent > -1)
                 Game.WhitePieces[opponent].active = false;
 
-            // Update other pieces' allowed moves
-            for(n = 0; n < Game.BlackPieces.length; n++ ){
-                // Has to be done on all pieces because the new position of a piece may change other piece's valid moves
-                Game.BlackPieces[n].moves = [];
-                Game.BlackPieces[n].allowed_moves();
-            }
+            // Update all valid moves
+            updateAllValidMoved();
 
             // Change turns
             Game.turn = WHITES_TURN;
@@ -49,9 +54,8 @@ function opponents_turn(){
 
         // Force game stop
         computations++;
-        if(computations >= 1000){
-            computations = 0;
-            print("Game over");
+        if(computations > 1000){
+            print("Game over: blacks cant move anymore");
             break;
         }
     }

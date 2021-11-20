@@ -15,11 +15,36 @@ var SCENARIO1       = [ "rnbqkbnr",
                         "  NQ    ",
                         "        ",
                         "R B KBNR"];
+var SCENARIO2       = [ "rnbqkbnr",
+                        "p pp ppp",
+                        "    p   ",
+                        " p P    ",
+                        "    p   ",
+                        "        ",
+                        "PBP     ",
+                        "RN QK NR"];
+var SCENARIO3       = [ "        ",
+                        "        ",
+                        "       p",
+                        "    Q   ",
+                        "        ",
+                        "        ",
+                        "PBP     ",
+                        "RN  K NR"];
+
+var SCENARIO4       = [ "        ",
+                        "      P ",
+                        "  KP    ",
+                        "        ",
+                        "   p    ",
+                        "        ",
+                        "      p ",
+                        "        "];
 
 var BOARD1          = TRADITIONAL;
 var BOARD           = new Array(8);
 var verbose         = false;
-var inDebugMode     = true;
+var inDebugMode     = false;
 var img;
 var knightImg;
 var Game;
