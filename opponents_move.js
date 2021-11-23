@@ -1,32 +1,41 @@
-/*
-Walter Newsome ECE @ VT
-wnewsome.com
-    This file contains all the functions related to the algorithm that computes the next best move
-*/
+/**
+ * The opponents_move file contains the functions required to calculate the best opponent's move based on
+ * the current board and the level of dificulty.
+ *
+ * The minimax algorithm as well as some helper functions are defined here.
+ *
+ * @Author Walter Newsome <waltern@vt.edu>
+ * Last modified: 2021-11-23
+ */
 
 var computations = 0;
 
+// This function will use AI to calculate the next best move according to the game level
 function opponents_turn(){
-    // This function will use AI to calculate the next best move according to the game level
-    var AI = minimax(BOARD,0,false);
-    var move = AI[2];
 
+    var AI = minimax(BOARD,0,false);
 
     if(!AI[1]){
-        // No moves found
+        // No moves found: return
         Game.turn = WHITES_TURN;
         return;
     }
+    var move = AI[2];
 
-    print(AI[3]);
+    // Print useful information to the screen
+    if(verbose)
+        print(AI[3]);
+
     var index = get_index_by_ij(AI[1][0], AI[1][1], Game.BlackPieces);
     // Leave
     BOARD[Game.BlackPieces[index].j][Game.BlackPieces[index].i] = ' ';
     Game.blackLeavingI = Game.BlackPieces[index].i;
     Game.blackLeavingJ = Game.BlackPieces[index].j;
     pieceLeaved = 255;
+
     // Arrive
     BOARD[move[1]][move[0]] = Game.BlackPieces[index].char;
+
     // Update this piece
     Game.BlackPieces[index].i = move[0];
     Game.BlackPieces[index].j = move[1];
@@ -45,15 +54,18 @@ function opponents_turn(){
 
     // Update all valid moves
     updateAllValidMoves();
-    //console.clear();
-    print("For this, the algorithm calculated " + computations + " diferent boards.")
+    if(verbose)
+        print("For this, the algorithm calculated " + computations + " diferent boards.")
+
+    // Reset count
     computations = 0;
 
-    // Move piece
+    // Move piece (animation)
     Game.turn = MOVING_PIECE;
     movingPieceIndex = index;
     movingWhite = false;
 
+    // Check end of game conditionals
     if(inCheck(BOARD, true)){
         if(inCheckmate(BOARD, true)){
             Game.state = GAME_LOST;
@@ -62,8 +74,13 @@ function opponents_turn(){
     }
 }
 
+/*
+    The heuristic function used by the minimax algorithm.
+    This function uses the variable board to calculate an
+    approximated rank/score of the board in which it fully
+    depends on the amount and type of its existing pieces.
+*/
 function boardHeuristic(board){
-
     var score = 0;
 
     // Infinite values to checkmates
@@ -100,16 +117,23 @@ function boardHeuristic(board){
             }
         }
     }
-
     return score;
 }
 
-function minimax(board, depth, isMaximizing){
+/*
+    This minimax algorithm uses the predefined game level to explore derived
+    boards based on the allowed moves of the existing pieces and their corresponding
+    board value.
+
+    It assumes the player (human) plays optimally and selects the best move possible.
+    The amount of boards that are explored by this algorithm depends on the game level.
+*/
+function minimax(board, depth, isWhite){
     var result = boardHeuristic(board);
     if(depth == Game.level+1)
         return [result];
 
-    if(isMaximizing){
+    if(isWhite){
         // For all moves get the one with highest score
         var bestScore = -100000;
         var allMoves = getAvailableMoves(board, true);
@@ -118,6 +142,7 @@ function minimax(board, depth, isMaximizing){
         }
         var pieceFrom;
         var pieceTo;
+        // For each piece, create a new board based on each allowed move
         for(var piece = 0; piece < allMoves.length; piece++){
             for(var move = 0; move < allMoves[piece].moves.length; move++){
                 computations++;
@@ -126,9 +151,11 @@ function minimax(board, depth, isMaximizing){
                 var toI = allMoves[piece].moves[move][0];
                 var toJ = allMoves[piece].moves[move][1];
 
+                // Update the temporary board
                 tempBoard = boardDeepCopy(board);
                 tempBoard[fromJ][fromI] = ' ';
-                // Pawn is a Queen now
+
+                // Check if pawn becomes a queen
                 if(toJ == 0 && allMoves[piece].char == 'P') allMoves[piece].char = 'Q';
                 tempBoard[toJ][toI] = allMoves[piece].char;
 
@@ -142,13 +169,14 @@ function minimax(board, depth, isMaximizing){
                     pieceFrom = [allMoves[piece].i, allMoves[piece].j];
                     pieceTo = [allMoves[piece].moves[move][0], allMoves[piece].moves[move][1]];
                     bestMove = "Based on: White's best move is to move the "+allMoves[piece].name+" to ("+allMoves[piece].moves[move][0]+", "+allMoves[piece].moves[move][1]+") with a score of "+isCheck+",";
-                    console.clear();
-                    print(bestMove);
+                    if(verbose){
+                        console.clear();
+                        print(bestMove);
+                    }
                 }
             }
         }
-        //print("Move White "+bestMove+" score: "+bestScore);
-        //return bestScore;
+        // Best move for white for this given board found
         return [bestScore, pieceFrom, pieceTo];
 
     } else {
@@ -161,8 +189,9 @@ function minimax(board, depth, isMaximizing){
         }
         var pieceFrom;
         var pieceTo;
-        for(var piece = 0; piece < allMoves.length; piece++){
 
+        // For each piece, create a new board based on each allowed move
+        for(var piece = 0; piece < allMoves.length; piece++){
             for(var move = 0; move < allMoves[piece].moves.length; move++){
                 computations++;
                 var fromI = allMoves[piece].i;
@@ -172,28 +201,30 @@ function minimax(board, depth, isMaximizing){
 
                 tempBoard = boardDeepCopy(board);
                 tempBoard[fromJ][fromI] = ' ';
-                // Pawn is a Queen now
+
+                // Check if pawn becomes a queen
                 if(toJ == 7 && allMoves[piece].char == 'p') allMoves[piece].char = 'q';
 
                 tempBoard[toJ][toI] = allMoves[piece].char;
+                // Recursivly get the score of the derived board
                 score = minimax(tempBoard, depth+1, true)[0];
                 if(score < bestScore){
                     bestScore = score;
                     pieceFrom = [allMoves[piece].i, allMoves[piece].j];
                     pieceTo = [allMoves[piece].moves[move][0], allMoves[piece].moves[move][1]];
                     bestMove = "the, algorithm decided to move its "+allMoves[piece].name+" to ("+allMoves[piece].moves[move][0]+", "+allMoves[piece].moves[move][1]+") with a score of "+score+" (less is better)";
-                    //print(bestMove, " ", depth)
                 }
             }
         }
-        //print(bestMove)
+        // Best move for black found
         return [bestScore, pieceFrom, pieceTo, bestMove];
     }
 }
 
-function getAvailableMoves(board, isMaximizing){
+function getAvailableMoves(board, isWhite){
+    // For a given board, return a list of all the pieces, including their allowed moves
     var pieces = [];
-    if(isMaximizing){
+    if(isWhite){
         for (var i = 0; i< board.length; i++) {
             for (var j =0; j < board[i].length; j++) {
                 switch (board[i][j]) {
@@ -265,14 +296,11 @@ function inCheck(board, white){
             for(var moves = 0; moves < pieces[piece].moves.length; moves++){
                 if( pieces[piece].moves[moves][0] == king[0] &&
                     pieces[piece].moves[moves][1] == king[1]){
-                        //print(kingChar+" in check by the opponent's "+pieces[piece].name);
                         return true;
                 }
             }
         }
     }
-    //print(kingChar+" not check here: ")
-    //print(board);
     return false;
 }
 
@@ -302,10 +330,8 @@ function inCheckmate(board, white){
                 boardAfterMove[currentPiece.j][currentPiece.i] = ' ';
                 boardAfterMove[currentMove[1]][currentMove[0]] = currentPiece.char;
 
-                if(!inCheck(boardAfterMove, white)){
-                    //print("move "+currentPiece.char+" "+currentPiece.name+" to "+currentMove[0]+", "+currentMove[1]);
+                if(!inCheck(boardAfterMove, white))
                     return false;
-                }
             }
         }
     } else {
@@ -326,7 +352,6 @@ function numberOfMoves(board, white){
         var thisPiece = pieces[piece];
         var allMoves = removeCheckMoves(thisPiece, board);
         for(var move = 0; move < allMoves.length; move++){
-            //print(pieces[piece].moves[move])
             count++;
         }
     }

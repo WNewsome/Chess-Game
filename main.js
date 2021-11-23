@@ -1,9 +1,16 @@
-/*
-Walter Newsome ECE @ VT
-wnewsome.com
-*/
+/**
+ * The main.js file contains the p5's required setup() and draw() functions as well
+ * as the GameState class. This class contains information regarding the overall state of the game,
+ * as well as the status of the main board.
+ *
+ * @Author Walter Newsome <waltern@vt.edu>
+ * Last modified: 2021-11-23
+ */
 
 class GameState{
+    /* The GameState initiates the program's state and contains several methods only available to
+    *  the pieces on the game.
+    */
     constructor(){
         // Main game components
         this.WhitePieces = [];
@@ -67,7 +74,7 @@ class GameState{
                 if((i+j)%2 == 1) fill(Game.boardColor2);
                 translate(i*PIECE_SIZE, j*PIECE_SIZE);
                 square(0,0, PIECE_SIZE);
-                if(verbose){
+                if(inDebugMode){
                     fill(0);
                     strokeWeight(1);
                     text("( "+i+", "+j+" )", 2, 12);
@@ -96,7 +103,7 @@ class GameState{
             }
         }
 
-        // Draw moves if clicked TODOREMOVE
+        // Draw moves if clicked
         for(var i = 0; i< this.BlackPieces.length; i++){
             if(this.BlackPieces[i].selected)
                 this.BlackPieces[i].drawMovesBlacks();
@@ -111,7 +118,7 @@ class GameState{
             movePiece();
         }
 
-        // TODOREMOVE
+        // Allow to see the opponents allowed moves
         if(this.blackSelected>-1){
             if(this.BlackPieces[this.blackSelected].active)
                 this.BlackPieces[this.blackSelected].drawMoves();
@@ -126,6 +133,7 @@ class GameState{
             translate(this.blackLeavingI*PIECE_SIZE, this.blackLeavingJ*PIECE_SIZE);
             stroke(200,0,0,pieceLeaved);
             strokeWeight(4);
+            // Simply draw several red lines
             line(10*screenScale, 10*screenScale, 10*screenScale, 20*screenScale);
             line(10*screenScale, 10*screenScale, 20*screenScale, 10*screenScale);
             line(65*screenScale, 10*screenScale, 65*screenScale, 20*screenScale);
@@ -136,16 +144,15 @@ class GameState{
             line(65*screenScale, 65*screenScale, 55*screenScale, 65*screenScale);
             pop();
         }
-
-        // /updateAllValidMoves();
     }
 
+    // Allow to select either a single white (to move around) or black (to see allowed moves) piece.
     selectPiece(i, j){
-        this.blackSelected = -1; // TODOREMOVE
+        this.blackSelected = -1;
         // Called after click, identifies if a white piece was selected
         var index = get_index_by_ij(i, j, this.WhitePieces);
 
-        // Clear all other selections TODO: limit this process to only this.selectedIndex?
+        // Clear all other selections
         for(var n = 0; n< this.WhitePieces.length; n++){
                 if(n != index)
                     this.WhitePieces[n].selected = false;
@@ -154,13 +161,14 @@ class GameState{
         if(index>-1){
             // Select or deselect
             this.WhitePieces[index].toggleSelection();
+
             // Can only select one piece at the time
             this.selectedIndex = this.WhitePieces[index].selected ? index: -1;
         } else {
             this.selectedIndex = -1;
         }
 
-        // TODOREMOVE
+        // If selecting a black piece, then not selecting a white piece
         var indexBlack = get_index_by_ij(i, j, this.BlackPieces);
         if(indexBlack>-1){
             this.blackSelected = indexBlack;
@@ -170,17 +178,20 @@ class GameState{
 }
 
 function setup(){
-    //windowWidth, windowHeight
+    // Allow for rescaling of the canvas
     WIDTH = windowHeight;
     if(windowHeight>windowWidth){
         WIDTH = windowWidth;
     }
+
+    // Predefined canvas size (square)
     WIDTH = 600;
     HEIGHT = WIDTH;
     screenScale = WIDTH/600;
     createCanvas(WIDTH, HEIGHT);
     background(0);
     PIECE_SIZE      = WIDTH/8;
+
     // Setup the board to be an array
     for (var i = 0; i < 8; i++) {
         BOARD[i] = new Array(8);
@@ -191,6 +202,8 @@ function setup(){
     }
 
     Game = new GameState();
+
+    // Load images
     img = loadImage("assets/logo.PNG");
     knightImg = loadImage("assets/knight.PNG");
     for(var i = 0; i < 12; i++)
@@ -284,7 +297,6 @@ function mouseClicked(event) {
             handle_piece_click(i,j);
             break;
     }
-    //print(mouseX/screenScale, mouseY/screenScale);
 }
 
 function draw(){

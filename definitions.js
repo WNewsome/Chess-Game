@@ -1,3 +1,12 @@
+/**
+ * This file contains all global variables used throughout the chess game.
+ * Some variables include: Game state definitions, predefined board setups, and containers.
+ *
+ * @Author Walter Newsome <waltern@vt.edu>
+ * Last modified: 2021-11-23
+ */
+
+// Predefined boards
 var TRADITIONAL     = [ "rnbqkbnr",
                         "pppppppp",
                         "        ",
@@ -43,15 +52,18 @@ var SCENARIO3       = [ " K      ",
                         "        ",
                         "        "];
 
+// Containers
 var BOARD1          = TRADITIONAL;
 var DEPTH           = 3;
 var BOARD           = new Array(8);
-var verbose         = false;
+var verbose         = true;
 var inDebugMode     = false;
 var AI              = true;
 var img;
 var knightImg;
 var Game;
+
+// Constants
 var currFrameInt    = 0;
 var selectedPieceY  = 0;
 var pieceYDir       = -1;

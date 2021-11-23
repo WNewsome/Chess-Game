@@ -1,9 +1,10 @@
-/*
-Walter Newsome ECE @ VT
-wnewsome.com
-    This file contains all classes, methods, and helper functions
-    related to the piece object.
-*/
+/**
+ * This file contains all classes, methods, and helper functions
+ * related to the piece object.
+ *
+ * @Author Walter Newsome <waltern@vt.edu>
+ * Last modified: 2021-11-23
+ */
 
 class Piece{
     // The main piece class contains information about the state of the piece
@@ -65,9 +66,8 @@ class Piece{
             noStroke();
             translate(this.initCoordinates[0]+PIECE_SIZE/2, this.initCoordinates[1]+PIECE_SIZE/2);
             image(pieceImage[this.id], -PIECE_SIZE/2, -PIECE_SIZE/2-ybaseSel,PIECE_SIZE,PIECE_SIZE);
-            if(verbose){
+            if(inDebugMode){
                 // Print info related to this piece
-                //fill(0);
                 strokeWeight(3);
                 text("( "+this.i+", "+this.j+" )", -PIECE_SIZE/2+2, -PIECE_SIZE/2+12);
             }
@@ -75,6 +75,7 @@ class Piece{
             pop();
         }
     }
+
     drawMoves(){
         if(this.active){
             if(circleSize > 15 || circleSize < 0){
@@ -104,7 +105,7 @@ class Piece{
     }
 
     toggleSelection(){
-        // Select / deselect a piece
+        // Select or deselect a piece
         this.selected = !this.selected;
     }
 }
@@ -420,6 +421,7 @@ var movingPieceIndex = -1;
 var movingWhite      = true;
 
 function movePiece(){
+    // This function allows to animate the moved piece for both players
     if(movingWhite){
         var movingPiece = Game.WhitePieces[movingPieceIndex];
         var deltaY = 0;
@@ -483,6 +485,8 @@ function movePiece(){
 }
 
 function boardDeepCopy(boardToCopyFrom){
+    // Return a deep copy of the passed board
+    // Solves the issue regarding updating a secondary board when creating its copy
     var boardToReturn;
     boardToReturn = new Array(8);
     for (var i = 0; i < 8; i++) {
@@ -498,6 +502,8 @@ function boardDeepCopy(boardToCopyFrom){
 }
 
 function removeCheckMoves(piece, theBoard){
+    // For all allowed moves of a given piece, remove all moves that can make the king
+    // to become in the check state
     var allMoves = piece.moves;
     var allowed = [];
     for(var move = 0; move < allMoves.length; move++){
@@ -513,6 +519,7 @@ function removeCheckMoves(piece, theBoard){
 }
 
 function drawComputerThinking(){
+    // Simple message to display that the computer is currently calculating its next move
     push();
     fill(0,0,0,150);
     textSize(35);
@@ -523,17 +530,18 @@ function drawComputerThinking(){
 }
 
 function winGame(){
+    // Displayed when the user wins the game
     if(selectedPieceY > 10 || selectedPieceY < 0){
         pieceYDir = -pieceYDir;
     }
     selectedPieceY += pieceYDir;
-
+    // Select the piece the user used to win the game and display it
     push();
     fill(0,0,0,150);
     textSize(37);
     rect(1.5*PIECE_SIZE, 2.75*PIECE_SIZE, 5*PIECE_SIZE, 1.5*PIECE_SIZE);
     fill(255);
-    text("You Won",2.5*PIECE_SIZE, 3.65*PIECE_SIZE);
+    text("You Win",2.5*PIECE_SIZE, 3.65*PIECE_SIZE);
     push();
     translate(4.75*PIECE_SIZE+PIECE_SIZE/2, 3*PIECE_SIZE+PIECE_SIZE/2);
     image(pieceImage[pieceWinId], -PIECE_SIZE/2-selectedPieceY, -PIECE_SIZE/2-selectedPieceY, PIECE_SIZE+2*selectedPieceY, PIECE_SIZE+2*selectedPieceY);
@@ -542,11 +550,13 @@ function winGame(){
 }
 
 function lostGame(){
+    // Display that the computer won the game
     if(selectedPieceY > 10 || selectedPieceY < 0){
         pieceYDir = -pieceYDir;
     }
     selectedPieceY += pieceYDir;
 
+    // Select the piece the algorithm used to win the game and display it
     push();
     fill(255,0,0,180);
     textSize(37);
