@@ -8,59 +8,69 @@ var TRADITIONAL     = [ "rnbqkbnr",
                         "RNBQKBNR"];
 
 var SCENARIO1       = [ "rnbqkbnr",
-                        "p pp ppp",
-                        "    p   ",
-                        " p P    ",
+                        "p  ppppp",
+                        " pp     ",
                         "        ",
-                        "  NQ    ",
-                        "        ",
-                        "R B KBNR"];
-var SCENARIO2       = [ "rnbqkbnr",
-                        "p pp ppp",
-                        "    p   ",
-                        " p P    ",
-                        "    p   ",
-                        "        ",
-                        "PBP     ",
-                        "RN QK NR"];
-var SCENARIO3       = [ "        ",
-                        "        ",
-                        "       p",
-                        "    Q   ",
-                        "        ",
-                        "        ",
-                        "PBP     ",
-                        "RN  K NR"];
+                        "  B     ",
+                        "    P   ",
+                        "PPPP PP ",
+                        "RNBQK NR"];
 
-var SCENARIO4       = [ "        ",
+var SCENARIO2       = [ "        ",
                         "      P ",
-                        "  KP    ",
                         "        ",
-                        "   p    ",
+                        "   k    ",
                         "        ",
-                        "      p ",
+                        "  K     ",
+                        "     pr ",
+                        "        "];
+
+var SCENARIO3       = [ " k      ",
+                        "      R ",
+                        "        ",
+                        "        ",
+                        "   R    ",
+                        "   K    ",
+                        "        ",
+                        "        "];
+
+var SCENARIO3       = [ " K      ",
+                        "      r ",
+                        "        ",
+                        "        ",
+                        "   q    ",
+                        "   k    ",
+                        "        ",
                         "        "];
 
 var BOARD1          = TRADITIONAL;
+var DEPTH           = 3;
 var BOARD           = new Array(8);
 var verbose         = false;
 var inDebugMode     = false;
+var AI              = true;
 var img;
 var knightImg;
 var Game;
 var currFrameInt    = 0;
+var selectedPieceY  = 0;
+var pieceYDir       = -1;
+var circleDir       = -1;
+var circleSize      = 0;
+var pieceLeaved     = 255;
+var pieceWinId      = -1;
 
 // Pieces values
-var KING_VALUE      = 10;
-var QUEEN_VALUE     = 6;
-var BISHOP_VALUE    = 3;
-var KNIGHT_VALUE    = 3;
-var ROOK_VALUE      = 3;
-var PAWN_VALUE      = 1;
+var KING_VALUE      = 100;
+var QUEEN_VALUE     = 50;
+var BISHOP_VALUE    = 10;
+var KNIGHT_VALUE    = 10;
+var ROOK_VALUE      = 10;
+var PAWN_VALUE      = 3;
 
 // Sizes
-var WIDTH           = 600;
-var HEIGHT          = 600;
+var WIDTH           = 400;
+var HEIGHT          = 400;
 var PIECE_SIZE      = WIDTH/8;
 
 // Errors
@@ -75,8 +85,11 @@ var SETTINGS        = 2;
 var GAME            = 3;
 var INSTRUCTIONS    = 4;
 var CREDITS         = 5;
+var GAME_WON        = 6;
+var GAME_LOST       = 7;
 var WHITES_TURN     = 0;
 var BLACKS_TURN     = 1;
+var MOVING_PIECE    = 2;
 
 // Images
 var pieceImage      = [];
