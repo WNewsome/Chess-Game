@@ -27,7 +27,7 @@ class GameState{
         this.color = 0;
         this.boardColor1 = color(250, 198, 155);
         this.boardColor2 = color(181, 117, 62);
-        this.level = 1;
+        this.level = 2;
     }
 
     loadPieces(){
@@ -238,7 +238,7 @@ function mouseClicked(event) {
                 }
             if(inDebugMode)
                 print(event.offsetX + " " + event.offsetY);
-            break
+            break;
         case SETTINGS:
             // Identifies which options did the user selected
             if( event.offsetX>= 268*screenScale && event.offsetX<=342*screenScale &&
@@ -304,11 +304,11 @@ function draw(){
     switch(Game.state){
         case SPLASH_SCREEN:
             draw_splash_screen();
-            Game.state = MAIN_MENU;
+            //Game.state = MAIN_MENU;
             break;
         case MAIN_MENU:
             draw_main_screen();
-            break
+            break;
         case SETTINGS:
             draw_options_screen();
             break;

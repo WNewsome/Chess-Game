@@ -28,7 +28,7 @@ function draw_splash_screen(){
         fill(255);
         stroke(255);
         // Drawing the 'pencil'
-        circle(drawAnimatedLogo[drawIndex].x*screenScale,drawAnimatedLogo[drawIndex].y*screenScale, 5)
+        circle(drawAnimatedLogo[drawIndex].x*screenScale,drawAnimatedLogo[drawIndex].y*screenScale, 5);
         line(drawAnimatedLogo[drawIndex].x*screenScale,drawAnimatedLogo[drawIndex].y*screenScale, drawAnimatedLogo[drawIndex].x*screenScale + 40,drawAnimatedLogo[drawIndex].y*screenScale +40 );
         drawIndex+=10;
         pop();
@@ -118,7 +118,7 @@ function draw_options_screen(){
         square(xbase+WIDTH/2+80*screenScale, ybase+10*screenScale, 25*screenScale);
         square(xbase+WIDTH/2+105*screenScale, ybase+35*screenScale, 25*screenScale);
         pop();
-    push()
+    push();
         // Board option three
         fill(120);
         square(xbase+WIDTH/2+140*screenScale, ybase+10*screenScale, 50*screenScale);

@@ -55,7 +55,7 @@ function opponents_turn(){
     // Update all valid moves
     updateAllValidMoves();
     if(verbose)
-        print("For this, the algorithm calculated " + computations + " diferent boards.")
+        print("For this, the algorithm calculated " + computations + " diferent boards.");
 
     // Reset count
     computations = 0;
@@ -156,7 +156,7 @@ function minimax(board, depth, isWhite){
                 tempBoard[fromJ][fromI] = ' ';
 
                 // Check if pawn becomes a queen
-                if(toJ == 0 && allMoves[piece].char == 'P') allMoves[piece].char = 'Q';
+                if(toJ === 0 && allMoves[piece].char == 'P') allMoves[piece].char = 'Q';
                 tempBoard[toJ][toI] = allMoves[piece].char;
 
                 score = minimax(tempBoard, depth+1, false)[0];

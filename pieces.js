@@ -125,7 +125,7 @@ class King extends Piece{
             BOARD[this.j][this.i] = this.char;
         for(var i = -1; i < 2; i++){
             for(var j = -1; j < 2; j++){
-                if( i != 0 || j != 0) addMove(this.i+i, this.j+j, this.moves, this.white, this.minimax, this.tempBoard, this.char);
+                if( i !== 0 || j !== 0) addMove(this.i+i, this.j+j, this.moves, this.white, this.minimax, this.tempBoard, this.char);
             }
         }
     }
@@ -211,7 +211,7 @@ class Knight extends Piece{
         if(this.active && !this.minimax)
             BOARD[this.j][this.i] = this.char;
         // compute valid L (or 7 shape) postions
-        this.moves = []
+        this.moves = [];
         addMove(this.i+1, this.j+2, this.moves, this.white, this.minimax, this.tempBoard, this.char);
         addMove(this.i+1, this.j-2, this.moves, this.white, this.minimax, this.tempBoard, this.char);
         addMove(this.i-1, this.j-2, this.moves, this.white, this.minimax, this.tempBoard, this.char);
@@ -233,7 +233,7 @@ class Rook extends Piece{
 
     allowed_moves(){
         // This piece can move multiple cells horizontally or vertically
-        this.moves = []
+        this.moves = [];
         if(this.active && !this.minimax)
             BOARD[this.j][this.i] = this.char;
         // West
@@ -262,7 +262,7 @@ class Pawn extends Piece{
 
     allowed_moves(){
         // Compute valid moves
-        this.moves = []
+        this.moves = [];
         if(this.active && !this.minimax)
             BOARD[this.j][this.i] = this.char;
         // Direction matters
@@ -371,7 +371,7 @@ function handle_piece_click(i,j){
                 Game.WhitePieces[Game.selectedIndex].j = j;
 
                 // Check if pawn become queen
-                if(Game.WhitePieces[Game.selectedIndex].name == "Pawn" && j == 0){
+                if(Game.WhitePieces[Game.selectedIndex].name == "Pawn" && j === 0){
                     // Pawn becomes queen!
                     Game.WhitePieces[Game.selectedIndex] = new Queen   (i, j, true, 'Q', 9);
                 }
